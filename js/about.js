@@ -1,11 +1,11 @@
-﻿let currentUser = null;
+let currentUser = null;
 let teamMembers = [];
 
 document.addEventListener("DOMContentLoaded", () => { init(); });
 
 async function init() {
   try {
-    const res = await fetch("/api/session", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/session", { credentials: "include" });
     const data = await res.json();
     currentUser = data.user;
   } catch (err) {
@@ -42,7 +42,7 @@ async function loadTeam() {
   const countEl = document.getElementById("team-count");
   if (!grid) return;
   try {
-    const res = await fetch("/api/team");
+    const res = await fetch(API_BASE + "/api/team");
     if (!res.ok) throw new Error("Request failed: " + res.status);
     teamMembers = await res.json();
   } catch (err) {
@@ -159,7 +159,7 @@ async function handleEditTeamMember(e, memberId, closeModal) {
 
   btn.disabled = true; btn.textContent = "Saving...";
   try {
-    const res = await fetch("/api/admin/team/" + memberId + "/edit", { method: "POST", credentials: "include", body: formData });
+    const res = await fetch(API_BASE + "/api/admin/team/" + memberId + "/edit", { method: "POST", credentials: "include", body: formData });
     const data = await res.json();
     if (!res.ok) { alert(data.error || "Could not save changes."); btn.disabled = false; btn.textContent = "Save changes"; return; }
     closeModal();
@@ -183,7 +183,7 @@ async function handleAddTeamMember(e) {
 
   btn.disabled = true; btn.textContent = "Adding...";
   try {
-    const res = await fetch("/api/admin/team/create", { method: "POST", credentials: "include", body: formData });
+    const res = await fetch(API_BASE + "/api/admin/team/create", { method: "POST", credentials: "include", body: formData });
     const data = await res.json();
     if (!res.ok) { alert(data.error || "Could not add this team member."); btn.disabled = false; btn.textContent = "Add team member"; return; }
     form.reset();
@@ -196,7 +196,7 @@ async function handleDeleteTeamMember(btn) {
   if (!confirm("Remove \"" + btn.dataset.memberName + "\" from the team page? This cannot be undone.")) return;
   btn.disabled = true;
   try {
-    const res = await fetch("/api/admin/team/" + btn.dataset.memberId, { method: "DELETE", credentials: "include" });
+    const res = await fetch(API_BASE + "/api/admin/team/" + btn.dataset.memberId, { method: "DELETE", credentials: "include" });
     const data = await res.json();
     if (!res.ok) { alert(data.error || "Could not remove this team member."); btn.disabled = false; return; }
     loadTeam();

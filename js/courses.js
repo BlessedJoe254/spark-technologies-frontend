@@ -1,4 +1,4 @@
-﻿let allCourses = [];
+let allCourses = [];
 let myCourseIds = [];
 let currentUser = null;
 let activeLevel = "All";
@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function init() {
   try {
-    const res = await fetch("/api/session", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/session", { credentials: "include" });
     const data = await res.json();
     currentUser = data.user;
   } catch (err) {
@@ -32,7 +32,7 @@ async function init() {
 
   if (currentUser && currentUser.role === "student") {
     try {
-      const res = await fetch("/api/my-courses", { credentials: "include" });
+      const res = await fetch(API_BASE + "/api/my-courses", { credentials: "include" });
       const courses = await res.json();
       myCourseIds = courses.map(c => c.id);
     } catch (err) {
@@ -45,7 +45,7 @@ async function init() {
 
 async function loadCourses() {
   try {
-    const res = await fetch("/api/courses");
+    const res = await fetch(API_BASE + "/api/courses");
     if (!res.ok) throw new Error("Request failed: " + res.status);
     allCourses = await res.json();
   } catch (err) {
@@ -129,7 +129,7 @@ async function handleEnroll(btn) {
   btn.textContent = "Enrolling...";
 
   try {
-    const res = await fetch("/api/enroll", {
+    const res = await fetch(API_BASE + "/api/enroll", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

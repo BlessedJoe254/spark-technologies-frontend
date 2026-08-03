@@ -1,4 +1,4 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const registerForm = document.getElementById("register-form");
   const forgotForm = document.getElementById("forgot-password-form");
@@ -61,7 +61,7 @@ async function handleForgotPassword(e) {
   submitBtn.textContent = "Sending...";
 
   try {
-    const res = await fetch("/api/forgot-password", {
+    const res = await fetch(`${API_BASE}/api/forgot-password`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -113,7 +113,7 @@ async function handleResetPassword(e) {
   submitBtn.textContent = "Saving...";
 
   try {
-    const res = await fetch("/api/reset-password", {
+    const res = await fetch(`${API_BASE}/api/reset-password`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -170,7 +170,7 @@ async function handleLogin(e) {
   submitBtn.textContent = "Logging in...";
 
   try {
-    const res = await fetch("/api/login", {
+    const res = await fetch(`${API_BASE}/api/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -226,7 +226,7 @@ async function handleRegister(e) {
   submitBtn.textContent = "Creating account...";
 
   try {
-    const res = await fetch("/api/register", {
+    const res = await fetch(`${API_BASE}/api/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

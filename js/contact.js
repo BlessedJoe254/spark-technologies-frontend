@@ -1,11 +1,11 @@
-﻿let currentUser = null;
+let currentUser = null;
 let adminMessages = [];
 
 document.addEventListener("DOMContentLoaded", () => { init(); });
 
 async function init() {
   try {
-    const res = await fetch("/api/session", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/session", { credentials: "include" });
     const data = await res.json();
     currentUser = data.user;
   } catch (err) {
@@ -53,7 +53,7 @@ async function handleContactSubmit(e) {
   btn.textContent = "Sending...";
 
   try {
-    const res = await fetch("/api/contact", {
+    const res = await fetch(API_BASE + "/api/contact", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -86,7 +86,7 @@ async function loadAdminMessages() {
   const countEl = document.getElementById("messages-count");
   if (!listEl) return;
   try {
-    const res = await fetch("/api/admin/messages", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/admin/messages", { credentials: "include" });
     if (!res.ok) throw new Error("Request failed: " + res.status);
     adminMessages = await res.json();
   } catch (err) {
@@ -147,7 +147,7 @@ async function handleSendReply(btn) {
   statusEl.className = "message-reply-status";
 
   try {
-    const res = await fetch("/api/admin/messages/" + messageId + "/reply", {
+    const res = await fetch(API_BASE + "/api/admin/messages/" + messageId + "/reply", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -217,7 +217,7 @@ async function handleToggleRead(btn) {
   const isRead = btn.dataset.isRead === "1";
   btn.disabled = true;
   try {
-    const res = await fetch("/api/admin/messages/" + btn.dataset.messageId + "/read", {
+    const res = await fetch(API_BASE + "/api/admin/messages/" + btn.dataset.messageId + "/read", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -236,7 +236,7 @@ async function handleDeleteMessage(btn) {
   if (!confirm("Delete this message? This cannot be undone.")) return;
   btn.disabled = true;
   try {
-    const res = await fetch("/api/admin/messages/" + btn.dataset.messageId, { method: "DELETE", credentials: "include" });
+    const res = await fetch(API_BASE + "/api/admin/messages/" + btn.dataset.messageId, { method: "DELETE", credentials: "include" });
     const data = await res.json();
     if (!res.ok) { alert(data.error || "Could not delete this message."); btn.disabled = false; return; }
     loadAdminMessages();

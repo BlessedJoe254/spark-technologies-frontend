@@ -1,4 +1,4 @@
-ï»¿let currentUserRole = null;
+let currentUserRole = null;
 
 document.addEventListener("DOMContentLoaded", () => { init(); });
 
@@ -64,7 +64,7 @@ function showPanel(id) { const el = document.getElementById(id); if (el) el.styl
 
 async function loadSession() {
   try {
-    const res = await fetch("/api/session", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/session", { credentials: "include" });
     if (!res.ok) throw new Error("Session check failed");
     return await res.json();
   } catch (err) { return { user: null }; }
@@ -104,7 +104,7 @@ function setTopbar(user) {
     "</div>" +
     "<span class=\"role-badge\">" + escapeHtml(user.role) + "</span><button class=\"btn btn-ghost\" id=\"logout-btn\">Log out</button>";
   const logoutBtn = document.getElementById("logout-btn");
-  if (logoutBtn) logoutBtn.addEventListener("click", async () => { await fetch("/api/logout", { method: "POST", credentials: "include" }); window.location.href = "login.html"; });
+  if (logoutBtn) logoutBtn.addEventListener("click", async () => { await fetch(API_BASE + "/api/logout", { method: "POST", credentials: "include" }); window.location.href = "login.html"; });
 
   const bellBtn = document.getElementById("notif-bell-btn");
   if (bellBtn) {
@@ -123,7 +123,7 @@ function setTopbar(user) {
 
 async function getAdminUnreadContactMessages() {
   try {
-    const res = await fetch("/api/admin/messages", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/admin/messages", { credentials: "include" });
     if (!res.ok) throw new Error("Request failed");
     const rows = await res.json();
     return rows.filter(m => !m.is_read);
@@ -149,7 +149,7 @@ async function loadNotificationBell() {
   const dropdown = document.getElementById("notif-dropdown");
   const statMessages = document.getElementById("stat-messages");
   try {
-    const res = await fetch("/api/messages/inbox", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/messages/inbox", { credentials: "include" });
     if (!res.ok) throw new Error("Request failed");
     const msgs = await res.json();
     const unread = msgs.filter(m => !m.is_read).length;
@@ -189,7 +189,7 @@ async function loadNotificationBell() {
 async function loadDashboardStats() {
   const els = { courses: document.getElementById("stat-courses"), projects: document.getElementById("stat-projects"), students: document.getElementById("stat-students"), messages: document.getElementById("stat-messages") };
   try {
-    const res = await fetch("/api/dashboard/stats");
+    const res = await fetch(API_BASE + "/api/dashboard/stats");
     if (!res.ok) throw new Error("Request failed: " + res.status);
     const data = await res.json();
     animateValue(els.courses, Number(data.courses));
@@ -259,7 +259,7 @@ function attendanceGraphHtml(sessions) {
 }
 
 function scoresHtml(scores) {
-  const row = (label, s) => "<div class=\"score-chip\"><span>" + label + "</span><strong>" + (s ? (s.score + "/" + s.max_score) : "â€”") + "</strong></div>";
+  const row = (label, s) => "<div class=\"score-chip\"><span>" + label + "</span><strong>" + (s ? (s.score + "/" + s.max_score) : "—") + "</strong></div>";
   return "<div class=\"scores-row\">" + row("CAT 1", scores.cat1) + row("CAT 2", scores.cat2) + row("Final", scores.final) + "</div>";
 }
 
@@ -294,7 +294,7 @@ async function loadRecentActivity() {
   const container = document.getElementById("recent-activity-list");
   if (!container) return;
   try {
-    const res = await fetch("/api/activity/recent");
+    const res = await fetch(API_BASE + "/api/activity/recent");
     if (!res.ok) throw new Error("Request failed");
     const rows = await res.json();
     if (rows.length === 0) { container.innerHTML = "<div class=\"empty-state\">No activity yet.</div>"; return; }
@@ -335,7 +335,7 @@ function wireMessageOpenEvents(container, onReadCallback) {
           const dot = item.querySelector(".unread-dot");
           if (dot) dot.remove();
           try {
-            await fetch("/api/messages/" + item.dataset.messageId + "/read", { method: "POST", credentials: "include" });
+            await fetch(API_BASE + "/api/messages/" + item.dataset.messageId + "/read", { method: "POST", credentials: "include" });
             if (onReadCallback) onReadCallback();
           } catch (err) {}
         }
@@ -356,7 +356,7 @@ async function loadStudentCourses() {
   const container = document.getElementById("student-course-list");
   if (!container) return;
   try {
-    const res = await fetch("/api/my-courses", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/my-courses", { credentials: "include" });
     if (!res.ok) throw new Error("Request failed");
     const courses = await res.json();
     if (courses.length === 0) { container.innerHTML = "<div class=\"empty-state\">You have not enrolled in any courses yet. <a href=\"courses.html\">Browse courses</a>.</div>"; return; }
@@ -403,7 +403,7 @@ async function handlePaymentSubmit(e) {
   if (!code) return;
   btn.disabled = true; btn.textContent = "Submitting...";
   try {
-    const res = await fetch("/api/submit-payment", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ course_id: courseId, payment_code: code }) });
+    const res = await fetch(API_BASE + "/api/submit-payment", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ course_id: courseId, payment_code: code }) });
     const data = await res.json();
     if (!res.ok) { alert(data.error || "Could not submit your code."); btn.disabled = false; btn.textContent = "Submit payment"; return; }
     loadStudentCourses();
@@ -415,7 +415,7 @@ async function loadStudentInbox() {
   const countEl = document.getElementById("student-inbox-count");
   if (!container) return;
   try {
-    const res = await fetch("/api/messages/inbox", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/messages/inbox", { credentials: "include" });
     if (!res.ok) throw new Error("Request failed");
     const msgs = await res.json();
     const unread = msgs.filter(m => !m.is_read).length;
@@ -433,7 +433,7 @@ async function loadTrainerEarnings() {
   const container = document.getElementById("trainer-earnings");
   if (!container) return;
   try {
-    const res = await fetch("/api/trainer/earnings", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/trainer/earnings", { credentials: "include" });
     if (!res.ok) throw new Error("Request failed");
     const d = await res.json();
     container.innerHTML =
@@ -457,7 +457,7 @@ async function loadTrainerStudents() {
   const countEl = document.getElementById("trainer-student-count");
   if (!container) return;
   try {
-    const res = await fetch("/api/trainer/students", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/trainer/students", { credentials: "include" });
     if (!res.ok) throw new Error("Request failed");
     const groups = await res.json();
     const total = groups.reduce((sum, g) => sum + g.students.length, 0);
@@ -474,7 +474,7 @@ function populateTrainerRecipientSelect(groups) {
   if (!select) return;
   let html = "<option value=\"\">Select a student or course...</option>";
   groups.forEach(g => {
-    html += "<option value=\"course:" + g.course_id + "\">All students â€” " + escapeHtml(g.course_title) + "</option>";
+    html += "<option value=\"course:" + g.course_id + "\">All students — " + escapeHtml(g.course_title) + "</option>";
     g.students.forEach(s => {
       html += "<option value=\"student:" + s.id + "\">" + escapeHtml(s.full_name) + " (" + escapeHtml(g.course_title) + ")</option>";
     });
@@ -541,7 +541,7 @@ async function handleAddClassLink(e) {
   const form = e.target, courseId = Number(form.dataset.courseId), title = form.querySelector(".link-title-input").value.trim(), url = form.querySelector(".link-url-input").value.trim(), btn = form.querySelector("button");
   btn.disabled = true; btn.textContent = "Adding...";
   try {
-    const res = await fetch("/api/trainer/class-links", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ course_id: courseId, title, url }) });
+    const res = await fetch(API_BASE + "/api/trainer/class-links", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ course_id: courseId, title, url }) });
     const data = await res.json();
     if (!res.ok) { alert(data.error || "Could not add the link."); btn.disabled = false; btn.textContent = "Add link"; return; }
     loadTrainerStudents();
@@ -554,7 +554,7 @@ async function handleRecordClass(e) {
   const checklist = group.querySelector(".attendance-checklist");
   btn.disabled = true; btn.textContent = "Creating...";
   try {
-    const res = await fetch("/api/trainer/sessions", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ course_id: courseId }) });
+    const res = await fetch(API_BASE + "/api/trainer/sessions", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ course_id: courseId }) });
     const data = await res.json();
     if (!res.ok) { alert(data.error || "Could not create the class session."); btn.disabled = false; btn.textContent = "Record today's class"; return; }
 
@@ -563,7 +563,7 @@ async function handleRecordClass(e) {
 
     checklist.style.display = "block";
     checklist.innerHTML =
-      "<div class=\"section-subhead\">Mark attendance â€” Class " + data.session.session_number + " of 10</div>" +
+      "<div class=\"section-subhead\">Mark attendance — Class " + data.session.session_number + " of 10</div>" +
       (students.length === 0 ? "<div class=\"empty-state\">No students enrolled to mark.</div>" :
         "<div class=\"attendance-mark-list\">" +
           students.map(s => "<label class=\"attendance-mark-item\"><input type=\"checkbox\" class=\"present-checkbox\" data-student-id=\"" + s.id + "\"> " + escapeHtml(s.name) + "</label>").join("") +
@@ -575,10 +575,10 @@ async function handleRecordClass(e) {
         saveBtn.disabled = true; saveBtn.textContent = "Saving...";
         const records = Array.from(checklist.querySelectorAll(".present-checkbox")).map(cb => ({ student_id: Number(cb.dataset.studentId), present: cb.checked }));
         try {
-          const res2 = await fetch("/api/trainer/attendance", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ session_id: data.session.id, records }) });
+          const res2 = await fetch(API_BASE + "/api/trainer/attendance", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ session_id: data.session.id, records }) });
           if (!res2.ok) throw new Error("Save failed");
           loadTrainerStudents();
-        } catch (err) { saveBtn.textContent = "Error â€” try again"; saveBtn.disabled = false; }
+        } catch (err) { saveBtn.textContent = "Error — try again"; saveBtn.disabled = false; }
       });
     }
 
@@ -594,7 +594,7 @@ async function handleSaveScores(e) {
   try {
     for (const input of inputs) {
       if (input.value === "") continue;
-      const res = await fetch("/api/trainer/scores", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ course_id: courseId, student_id: studentId, assessment_type: input.dataset.type, score: Number(input.value) }) });
+      const res = await fetch(API_BASE + "/api/trainer/scores", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ course_id: courseId, student_id: studentId, assessment_type: input.dataset.type, score: Number(input.value) }) });
       if (!res.ok) throw new Error("Save failed");
     }
     btn.textContent = "Saved";
@@ -610,7 +610,7 @@ async function handleNotesUpload(e) {
   formData.append("course_id", courseId); formData.append("title", titleInput.value.trim()); formData.append("file", fileInput.files[0]);
   btn.disabled = true; btn.textContent = "Uploading...";
   try {
-    const res = await fetch("/api/trainer/notes", { method: "POST", credentials: "include", body: formData });
+    const res = await fetch(API_BASE + "/api/trainer/notes", { method: "POST", credentials: "include", body: formData });
     const data = await res.json();
     if (!res.ok) { alert(data.error || "Could not upload note."); btn.disabled = false; btn.textContent = "Upload note"; return; }
     loadTrainerStudents();
@@ -622,7 +622,7 @@ async function loadTrainerInbox() {
   const countEl = document.getElementById("trainer-inbox-count");
   if (!container) return;
   try {
-    const res = await fetch("/api/messages/inbox", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/messages/inbox", { credentials: "include" });
     if (!res.ok) throw new Error("Request failed");
     const msgs = await res.json();
     const unread = msgs.filter(m => !m.is_read).length;
@@ -639,7 +639,7 @@ async function loadTrainerSentMessages() {
   const container = document.getElementById("trainer-sent-list");
   if (!container) return;
   try {
-    const res = await fetch("/api/messages/sent", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/messages/sent", { credentials: "include" });
     if (!res.ok) throw new Error("Request failed");
     const rows = await res.json();
     container.innerHTML = rows.length === 0 ? "<div class=\"empty-state\">No messages sent yet.</div>" :
@@ -661,7 +661,7 @@ async function handleSendTrainerMessage(e) {
     const payload = kind === "course"
       ? { recipient_type: "course", course_id: Number(id), subject, body }
       : { recipient_type: "student", recipient_id: Number(id), subject, body };
-    const res = await fetch("/api/messages/send", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(payload) });
+    const res = await fetch(API_BASE + "/api/messages/send", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(payload) });
     const data = await res.json();
     if (!res.ok) { alert(data.error || "Could not send message."); btn.disabled = false; btn.textContent = "Send message"; return; }
     form.reset();
@@ -691,7 +691,7 @@ async function loadAdminUsers() {
   const container = document.getElementById("admin-users-table");
   if (!container) return;
   try {
-    const res = await fetch("/api/admin/users", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/admin/users", { credentials: "include" });
     if (!res.ok) throw new Error("Request failed");
     const allRows = await res.json();
     const studentCountEl = document.getElementById("role-count-student");
@@ -723,7 +723,7 @@ async function loadAdminUsers() {
         if (!confirm(confirmMsg)) return;
         btn.disabled = true; btn.textContent = "Saving...";
         try {
-          const res = await fetch("/api/admin/users/" + btn.dataset.userId + "/status", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ is_active: btn.dataset.next === "1" }) });
+          const res = await fetch(API_BASE + "/api/admin/users/" + btn.dataset.userId + "/status", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ is_active: btn.dataset.next === "1" }) });
           const data = await res.json();
           if (!res.ok) { alert(data.error || "Could not update this account."); btn.disabled = false; btn.textContent = btn.dataset.next === "0" ? "Deactivate" : "Reactivate"; return; }
           loadAdminUsers();
@@ -739,7 +739,7 @@ async function loadAdminUsers() {
         if (!confirm("Permanently delete " + name + "'s " + role + " account? This removes their enrollments, scores, attendance and messages. This cannot be undone.")) return;
         btn.disabled = true; btn.textContent = "Deleting...";
         try {
-          const res = await fetch("/api/admin/users/" + btn.dataset.userId, { method: "DELETE", credentials: "include" });
+          const res = await fetch(API_BASE + "/api/admin/users/" + btn.dataset.userId, { method: "DELETE", credentials: "include" });
           const data = await res.json();
           if (!res.ok) { alert(data.error || "Could not delete this account."); btn.disabled = false; btn.textContent = "Delete"; return; }
           loadAdminUsers();
@@ -771,7 +771,7 @@ async function loadAdminEarnings() {
   const container = document.getElementById("admin-earnings");
   if (!container) return;
   try {
-    const res = await fetch("/api/admin/earnings", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/admin/earnings", { credentials: "include" });
     if (!res.ok) throw new Error("Request failed");
     const d = await res.json();
     container.innerHTML =
@@ -794,7 +794,7 @@ async function loadPendingPayments() {
   const countEl = document.getElementById("admin-pending-count");
   if (!container) return;
   try {
-    const res = await fetch("/api/admin/pending-payments", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/admin/pending-payments", { credentials: "include" });
     if (!res.ok) throw new Error("Request failed");
     const rows = await res.json();
     if (countEl) countEl.textContent = rows.length + " pending";
@@ -809,7 +809,7 @@ async function loadPendingPayments() {
       btn.addEventListener("click", async () => {
         btn.disabled = true; btn.textContent = "Saving...";
         try {
-          const res = await fetch("/api/admin/mark-paid", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ enrollment_id: Number(btn.dataset.enrollmentId) }) });
+          const res = await fetch(API_BASE + "/api/admin/mark-paid", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ enrollment_id: Number(btn.dataset.enrollmentId) }) });
           if (!res.ok) throw new Error("Save failed");
           loadPendingPayments(); loadAdminOverview(); loadAdminEarnings();
         } catch (err) { btn.textContent = "Error"; btn.disabled = false; }
@@ -823,7 +823,7 @@ async function loadAdminOverview() {
   const countEl = document.getElementById("admin-trainer-count");
   if (!container) return;
   try {
-    const res = await fetch("/api/admin/overview", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/admin/overview", { credentials: "include" });
     if (!res.ok) throw new Error("Request failed");
     const trainers = await res.json();
     if (countEl) countEl.textContent = trainers.length + " trainer" + (trainers.length === 1 ? "" : "s");
@@ -846,9 +846,9 @@ async function loadAdminOverview() {
                     c.students.map(s => (
                       "<tr><td>" + escapeHtml(s.full_name) + "</td><td>" + escapeHtml(s.phone || "-") + "</td><td>" + statusBadge(s.has_paid, 0) + "</td>" +
                       "<td style=\"min-width:110px;\">" + attendanceBarHtml(s.attended, 10) + "</td>" +
-                      "<td>" + (s.scores.cat1 ? s.scores.cat1.score : "â€”") + "</td>" +
-                      "<td>" + (s.scores.cat2 ? s.scores.cat2.score : "â€”") + "</td>" +
-                      "<td>" + (s.scores.final ? s.scores.final.score : "â€”") + "</td></tr>"
+                      "<td>" + (s.scores.cat1 ? s.scores.cat1.score : "—") + "</td>" +
+                      "<td>" + (s.scores.cat2 ? s.scores.cat2.score : "—") + "</td>" +
+                      "<td>" + (s.scores.final ? s.scores.final.score : "—") + "</td></tr>"
                     )).join("") + "</tbody></table>") +
                 "</div>"
               )).join("")) +
@@ -872,7 +872,7 @@ async function handleAddCourse(e) {
   if (!title || !level) return;
   btn.disabled = true; btn.textContent = "Adding...";
   try {
-    const res = await fetch("/api/admin/courses/create", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ title, level, fee_kes: fee, duration_weeks: duration, description }) });
+    const res = await fetch(API_BASE + "/api/admin/courses/create", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ title, level, fee_kes: fee, duration_weeks: duration, description }) });
     const data = await res.json();
     if (!res.ok) { alert(data.error || "Could not add the course."); btn.disabled = false; btn.textContent = "Add course"; return; }
     form.reset();
@@ -886,7 +886,7 @@ async function loadAssignTable() {
   const container = document.getElementById("admin-assign-table");
   if (!container) return;
   try {
-    const [coursesRes, trainersRes] = await Promise.all([fetch("/api/admin/courses", { credentials: "include" }), fetch("/api/admin/trainers", { credentials: "include" })]);
+    const [coursesRes, trainersRes] = await Promise.all([fetch(API_BASE + "/api/admin/courses", { credentials: "include" }), fetch(API_BASE + "/api/admin/trainers", { credentials: "include" })]);
     const courses = await coursesRes.json(); const trainers = await trainersRes.json();
     container.innerHTML =
       "<table class=\"simple-table\"><thead><tr><th>Course</th><th>Level</th><th>Fee (KES)</th><th>Trainer</th><th></th></tr></thead><tbody>" +
@@ -913,8 +913,8 @@ async function loadAssignTable() {
         const feeValue = feeInput.value;
         btn.disabled = true; btn.textContent = "Saving...";
         try {
-          const res1 = await fetch("/api/admin/assign-trainer", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ course_id: Number(courseId), trainer_id: trainerId ? Number(trainerId) : null }) });
-          const res2 = await fetch("/api/admin/courses/" + courseId + "/fee", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ fee_kes: feeValue }) });
+          const res1 = await fetch(API_BASE + "/api/admin/assign-trainer", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ course_id: Number(courseId), trainer_id: trainerId ? Number(trainerId) : null }) });
+          const res2 = await fetch(API_BASE + "/api/admin/courses/" + courseId + "/fee", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ fee_kes: feeValue }) });
           if (!res1.ok || !res2.ok) throw new Error("Save failed");
           btn.textContent = "Saved"; loadAdminOverview(); loadAdminEarnings();
           setTimeout(() => { btn.textContent = "Save"; btn.disabled = false; }, 1000);
@@ -927,7 +927,7 @@ async function loadAssignTable() {
         if (!confirm("Delete \"" + btn.dataset.courseTitle + "\"? This removes all enrollments, class links, attendance and notes for this course. This cannot be undone.")) return;
         btn.disabled = true; btn.textContent = "Deleting...";
         try {
-          const res = await fetch("/api/admin/courses/" + btn.dataset.courseId, { method: "DELETE", credentials: "include" });
+          const res = await fetch(API_BASE + "/api/admin/courses/" + btn.dataset.courseId, { method: "DELETE", credentials: "include" });
           const data = await res.json();
           if (!res.ok) { alert(data.error || "Could not delete the course."); btn.disabled = false; btn.textContent = "Delete"; return; }
           loadAssignTable(); loadAdminOverview(); loadAdminEarnings();
@@ -941,7 +941,7 @@ async function loadAdminComposeOptions() {
   const select = document.querySelector("#admin-compose-form .msg-recipient-select");
   if (!select) return;
   try {
-    const res = await fetch("/api/admin/trainers", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/admin/trainers", { credentials: "include" });
     if (!res.ok) throw new Error("Request failed");
     const trainers = await res.json();
     let html = "<option value=\"\">Select a trainer...</option><option value=\"all_trainers:all\">All trainers</option>";
@@ -954,7 +954,7 @@ async function loadAdminSentMessages() {
   const container = document.getElementById("admin-sent-list");
   if (!container) return;
   try {
-    const res = await fetch("/api/messages/sent", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/messages/sent", { credentials: "include" });
     if (!res.ok) throw new Error("Request failed");
     const rows = await res.json();
     container.innerHTML = rows.length === 0 ? "<div class=\"empty-state\">No messages sent yet.</div>" :
@@ -976,7 +976,7 @@ async function handleSendAdminMessage(e) {
     const payload = kind === "all_trainers"
       ? { recipient_type: "all_trainers", subject, body }
       : { recipient_type: "trainer", recipient_id: Number(id), subject, body };
-    const res = await fetch("/api/messages/send", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(payload) });
+    const res = await fetch(API_BASE + "/api/messages/send", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(payload) });
     const data = await res.json();
     if (!res.ok) { alert(data.error || "Could not send message."); btn.disabled = false; btn.textContent = "Send message"; return; }
     form.reset();
@@ -1009,7 +1009,7 @@ async function loadCertStudents() {
   const select = document.getElementById("cert-student-select");
   if (!select) return;
   try {
-    const res = await fetch("/api/admin/users", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/admin/users", { credentials: "include" });
     if (!res.ok) throw new Error("Request failed");
     const rows = await res.json();
     certStudents = rows.filter(u => u.role === "student" && u.is_active);
@@ -1025,7 +1025,7 @@ async function loadCertCourses(studentId) {
   if (!list) return;
   list.innerHTML = "<div class=\"empty-state\">Loading courses...</div>";
   try {
-    const res = await fetch("/api/admin/certificates/" + studentId + "/courses", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/admin/certificates/" + studentId + "/courses", { credentials: "include" });
     if (!res.ok) throw new Error("Request failed");
     certCourses = await res.json();
     if (certCourses.length === 0) { list.innerHTML = "<div class=\"empty-state\">This student is not enrolled in any courses.</div>"; updateCertGenerateButton(); return; }
@@ -1036,7 +1036,7 @@ async function loadCertCourses(studentId) {
       cb.addEventListener("change", async () => {
         const courseId = Number(cb.dataset.courseId);
         try {
-          await fetch("/api/admin/certificates/toggle-complete", {
+          await fetch(API_BASE + "/api/admin/certificates/toggle-complete", {
             method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
             body: JSON.stringify({ user_id: certSelectedStudentId, course_id: courseId, completed: cb.checked })
           });

@@ -1,4 +1,4 @@
-﻿let allProjects = [];
+let allProjects = [];
 let currentUser = null;
 let activeStatus = "All";
 let refreshTimer = null;
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function init() {
   try {
-    const res = await fetch("/api/session", { credentials: "include" });
+    const res = await fetch(API_BASE + "/api/session", { credentials: "include" });
     const data = await res.json();
     currentUser = data.user;
   } catch (err) { currentUser = null; }
@@ -51,7 +51,7 @@ function setTopbar() {
 
 async function loadProjects() {
   try {
-    const res = await fetch("/api/projects");
+    const res = await fetch(API_BASE + "/api/projects");
     if (!res.ok) throw new Error("Request failed: " + res.status);
     allProjects = await res.json();
   } catch (err) {
@@ -218,7 +218,7 @@ async function handleEditProject(e, projectId, closeModal) {
 
   btn.disabled = true; btn.textContent = "Saving...";
   try {
-    const res = await fetch("/api/admin/projects/" + projectId + "/edit", { method: "POST", credentials: "include", body: formData });
+    const res = await fetch(API_BASE + "/api/admin/projects/" + projectId + "/edit", { method: "POST", credentials: "include", body: formData });
     const data = await res.json();
     if (!res.ok) { alert(data.error || "Could not save changes."); btn.disabled = false; btn.textContent = "Save changes"; return; }
     closeModal();
@@ -251,7 +251,7 @@ async function handleAddProject(e) {
 
   btn.disabled = true; btn.textContent = "Posting...";
   try {
-    const res = await fetch("/api/admin/projects/create", { method: "POST", credentials: "include", body: formData });
+    const res = await fetch(API_BASE + "/api/admin/projects/create", { method: "POST", credentials: "include", body: formData });
     const data = await res.json();
     if (!res.ok) { alert(data.error || "Could not post the project."); btn.disabled = false; btn.textContent = "Post project"; return; }
     form.reset();
@@ -264,7 +264,7 @@ async function handleDeleteProject(btn) {
   if (!confirm("Delete \"" + btn.dataset.projectTitle + "\"? This cannot be undone.")) return;
   btn.disabled = true; btn.textContent = "Deleting...";
   try {
-    const res = await fetch("/api/admin/projects/" + btn.dataset.projectId, { method: "DELETE", credentials: "include" });
+    const res = await fetch(API_BASE + "/api/admin/projects/" + btn.dataset.projectId, { method: "DELETE", credentials: "include" });
     const data = await res.json();
     if (!res.ok) { alert(data.error || "Could not delete the project."); btn.disabled = false; btn.textContent = "Delete"; return; }
     loadProjects();
